@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">FirebaseConnect</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="next">Send</string>
+    <string name="name">Name</string>
+    <string name="nameHint">Enter Your Name</string>
+    <string name="message">Enter message</string>
+</resources>
