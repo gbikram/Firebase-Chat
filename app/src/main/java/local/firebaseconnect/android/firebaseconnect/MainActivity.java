@@ -16,49 +16,75 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
-    int messageId = 0;
+    int messageId;
+    Firebase rootRef;
+    TextView messageList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Firebase.setAndroidContext(this);
+        rootRef = new Firebase("https://fir-connect-29314.firebaseio.com/");
         setContentView(R.layout.activity_main);
         Button next = findViewById(R.id.button2);
+        messageList = (TextView) findViewById(R.id.textView);
+        rootRef.child("lastId").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                messageId = dataSnapshot.getValue(Integer.class);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Firebase rootRef = new Firebase("https://fir-connect-29314.firebaseio.com/");
                 String name = ((EditText)findViewById(R.id.editText2)).getText().toString();
                 String id = name;
-                messageId = messageId + 1;
+
+                rootRef.child("lastId").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        messageId = dataSnapshot.getValue(Integer.class);
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                });
+                messageId++;
+
                 String message = ((EditText)findViewById(R.id.message)).getText().toString();
                 // Assuming the user is already logged in
+                rootRef.child("lastId").setValue(messageId);
                 rootRef.child("messages").child(("message" + messageId)).child("message").setValue(message);
                 rootRef.child("messages").child("message" + messageId).child("sender").setValue(name);
                 rootRef.child("users").child(id).setValue(name);
-                rootRef.child("messages").child("message" + messageId).child("sender").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-                        TextView messageList = (TextView) findViewById(R.id.textView);
-                        messageList.append(snapshot.getValue().toString() + "\n");
+            }
+        });
+        rootRef.child("lastId").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                messageId = dataSnapshot.getValue(Integer.class);
+            }
 
-                        // System.out.println(snapshot.getValue());  //prints "Do you have data? You'll love Firebase."
-                    }
-                    @Override public void onCancelled(FirebaseError error) { }
-                });
-
-                rootRef.child("messages").child("message" + messageId).child("message").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-                        TextView messageList = (TextView) findViewById(R.id.textView);
-                        messageList.append(snapshot.getValue().toString() + "\n\n");
-
-                        // System.out.println(snapshot.getValue());  //prints "Do you have data? You'll love Firebase."
-                    }
-
-                    @Override public void onCancelled(FirebaseError error) { }
-                });
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
 
             }
+        });
+        rootRef.child("messages").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+
+                messageList.append(snapshot.child("message" + messageId).child("sender").getValue(String.class) + "\n");
+                messageList.append(snapshot.child("message" + messageId).child("message").getValue(String.class) + "\n\n");
+
+            }
+            @Override public void onCancelled(FirebaseError error) { }
         });
 
     }

@@ -50,6 +50,8 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="212dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:scrollbars = "vertical"
+        />
 
 </android.support.constraint.ConstraintLayout>
